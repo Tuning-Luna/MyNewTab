@@ -17,6 +17,8 @@ git clone https://github.com/Tuning-Luna/MyNewTab
 
 然后进入Chrome浏览器，进入插件页面打开开发者模式，把`dist`文件夹导入即可使用。
 
+按下q触发搜索框，使用上下箭头进行搜索引擎切换。
+
 ## 如何开发
 先克隆项目：
 
