@@ -6,8 +6,8 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const activeEngineIndex = ref(0)
 
 const searchEngines = [
-  { name: 'Google', url: 'https://www.google.com/search?q=' },
   { name: 'Bing', url: 'https://www.bing.com/search?q=' },
+  { name: 'Google', url: 'https://www.google.com/search?q=' },
   { name: 'Bilibili', url: 'https://search.bilibili.com/all?keyword=' }
 ]
 
@@ -30,7 +30,7 @@ function handleKeyDown(e: KeyboardEvent) {
         // localStorage.setItem('search', keyword)
         const engine = searchEngines[activeEngineIndex.value]
         const url = engine.url + encodeURIComponent(keyword)
-        window.open(url, '_blank')
+        window.location.href = url
       }
     }
     return
@@ -56,8 +56,22 @@ function handleKeyDown(e: KeyboardEvent) {
 
 
 onMounted(() => {
+  isSearchShow.value = true
+
+  nextTick(() => {
+    setTimeout(() => {
+      window.focus()  // 强行获取焦点
+      inputRef.value?.focus()
+    }, 100)
+  })
+
+  console.log('1')
+
   window.addEventListener('keydown', handleKeyDown)
 })
+
+
+
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeyDown)
