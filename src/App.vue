@@ -56,17 +56,6 @@ function handleKeyDown(e: KeyboardEvent) {
 
 
 onMounted(() => {
-  isSearchShow.value = true
-
-  nextTick(() => {
-    setTimeout(() => {
-      window.focus()  // 强行获取焦点
-      inputRef.value?.focus()
-    }, 100)
-  })
-
-  console.log('1')
-
   window.addEventListener('keydown', handleKeyDown)
 })
 
