@@ -34,7 +34,10 @@ onMounted(() => {
 <template>
   <div class="main">
     <div class="logo" ref="logoRef">
-      <img src="./assets/google_logo.svg" alt="logo" />
+      <img class="google" src="./assets/google_logo.svg" alt="logo" />
+      <div class="avatar">
+        <img src="./assets/Tuning.png" alt="">
+      </div>
     </div>
   </div>
 
@@ -51,7 +54,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 25vh;
+  padding-top: 20vh;
   perspective: 1000px;
 
   // 星云流动层
@@ -96,8 +99,8 @@ onMounted(() => {
   transform-style: preserve-3d;
   transition: transform 0.3s ease;
 
-  img {
-    width: 300px;
+  .google {
+    width: 400px;
     height: auto;
     transition: all 0.4s ease;
     transform-style: preserve-3d;
@@ -106,7 +109,7 @@ onMounted(() => {
     animation: idle 6s infinite linear alternate;
   }
 
-  img:hover {
+  .google:hover {
     transform: scale(1.1) rotateX(var(--rotateX)) rotateY(var(--rotateY)) translateZ(-25px);
     filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 200, 255, 0.5)) drop-shadow(0 0 20px rgba(0, 150, 255, 0.4));
   }
@@ -209,6 +212,60 @@ onMounted(() => {
 
   100% {
     transform: rotateX(0deg) rotateY(0deg);
+  }
+}
+
+.avatar {
+  position: absolute;
+  bottom: -240px; // 调整到 logo 下方或者你想要的位置
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px; // 头像大小
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%; // 圆形
+  overflow: visible;
+  z-index: 3;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid #00ffff; // 边框颜色
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    display: block;
+  }
+
+  // 涟漪效果
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    animation: ripple 2s infinite linear;
+    pointer-events: none;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.2;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
   }
 }
 </style>
