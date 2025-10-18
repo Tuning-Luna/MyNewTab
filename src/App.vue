@@ -1,191 +1,214 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, nextTick, } from 'vue'
+import { ref, onMounted } from 'vue';
 
-const isSearchShow = ref(false)
-const inputRef = ref<HTMLInputElement | null>(null)
-const activeEngineIndex = ref(0)
-
-const searchEngines = [
-  { name: 'Bing', url: 'https://www.bing.com/search?q=' },
-  { name: 'Google', url: 'https://www.google.com/search?q=' },
-  { name: 'Bilibili', url: 'https://search.bilibili.com/all?keyword=' }
-]
-
-function handleKeyDown(e: KeyboardEvent) {
-  // 如果输入框聚焦状态下
-  if (document.activeElement === inputRef.value) {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      activeEngineIndex.value = (activeEngineIndex.value - 1 + searchEngines.length) % searchEngines.length
-    }
-    else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      activeEngineIndex.value = (activeEngineIndex.value + 1) % searchEngines.length
-    }
-    else if (e.key === 'Enter') {
-      e.preventDefault()
-      const keyword = inputRef.value?.value.trim()
-      if (keyword) {
-        // 保存上一次搜索记录
-        // localStorage.setItem('search', keyword)
-        const engine = searchEngines[activeEngineIndex.value]
-        const url = engine.url + encodeURIComponent(keyword)
-        window.location.href = url
-      }
-    }
-    return
-  }
-
-  // 如果没有聚焦，按下 q 唤起搜索框
-  if (e.key.toLowerCase() === 'q') {
-    e.preventDefault()
-    isSearchShow.value = !isSearchShow.value
-
-    if (isSearchShow.value) {
-      nextTick(() => {
-        // 聚焦
-        if (inputRef.value) {
-          inputRef.value?.focus()
-          // 如果有，恢复上一次的搜索记录
-          // inputRef.value.value = localStorage.getItem('search') || ''
-        }
-      })
-    }
-  }
-}
-
+const logoRef = ref<HTMLDivElement | null>(null);
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown)
-})
+  if (!logoRef.value) return;
+  const logo = logoRef.value;
 
+  logo.addEventListener('mousemove', (e) => {
+    const rect = logo.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const percentX = (x - centerX) / centerX;
+    const percentY = (y - centerY) / centerY;
 
+    const maxAngle = 30;
+    const rotateY = maxAngle * percentX;
+    const rotateX = -maxAngle * percentY; // 翻转 Y 方向更自然
 
+    logo.style.setProperty('--rotateX', rotateX + 'deg');
+    logo.style.setProperty('--rotateY', rotateY + 'deg');
+  });
 
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeyDown)
-})
+  logo.addEventListener('mouseleave', () => {
+    logo.style.setProperty('--rotateX', '0deg');
+    logo.style.setProperty('--rotateY', '0deg');
+  });
+});
 </script>
-
-
-
 
 <template>
   <div class="main">
-    <transition name="fade">
-
-      <div class="search" v-if="isSearchShow">
-
-        <div class="engine-select" ref="engineSelectRef">
-          <transition name="slide-fade" mode="out-in">
-            <span :key="searchEngines[activeEngineIndex].name">
-              {{ searchEngines[activeEngineIndex].name }}
-            </span>
-          </transition>
-        </div>
-
-
-        <input type="text" ref="inputRef" @blur="isSearchShow = false" />
-      </div>
-    </transition>
+    <div class="logo" ref="logoRef">
+      <img src="./assets/google_logo.svg" alt="logo" />
+    </div>
   </div>
+
 </template>
-
-
 
 <style scoped lang="scss">
 .main {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background-image: url('./assets/Makima.png');
+  background: url('./assets/earch.jpg') no-repeat center center;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   overflow: hidden;
-  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 25vh;
+  perspective: 1000px;
 
+  // 星云流动层
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0);
-    transition: background-color 0.3s ease-in-out;
-    z-index: 1;
+    background: radial-gradient(circle at 30% 30%, rgba(0, 80, 255, 0.25), transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(255, 0, 150, 0.2), transparent 50%);
+    animation: nebulaMove 20s linear infinite alternate;
+    z-index: 0;
   }
 
-  &:focus-within::before {
-    background-color: rgba(0, 0, 0, 0.4);
+  // 星光漂移层
+  // 星光漂移层（密集版）
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1.5px 1.5px at 5% 10%, white, transparent),
+      radial-gradient(1.2px 1.2px at 15% 35%, #aaf, transparent),
+      radial-gradient(1.8px 1.8px at 25% 60%, #aff, transparent),
+      radial-gradient(1.2px 1.2px at 35% 20%, #ccf, transparent),
+      radial-gradient(1px 1px at 45% 50%, #aaf, transparent),
+      radial-gradient(1.5px 1.5px at 55% 80%, #aff, transparent),
+      radial-gradient(1.2px 1.2px at 65% 30%, #ccf, transparent),
+      radial-gradient(1px 1px at 75% 70%, #aaf, transparent),
+      radial-gradient(1.5px 1.5px at 85% 40%, #aff, transparent),
+      radial-gradient(1px 1px at 95% 90%, #ccf, transparent);
+    background-repeat: no-repeat;
+    animation: starsMove 25s linear infinite;
+    z-index: 0;
+  }
+}
+
+.logo {
+  position: relative;
+  z-index: 2;
+  --rotateX: 0deg;
+  --rotateY: 0deg;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+
+  img {
+    width: 300px;
+    height: auto;
+    transition: all 0.4s ease;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+    animation: idle 6s infinite linear alternate;
   }
 
-  .search {
-    position: relative;
-    z-index: 2;
-    margin: 200px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
+  img:hover {
+    transform: scale(1.1) rotateX(var(--rotateX)) rotateY(var(--rotateY)) translateZ(-25px);
+    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 200, 255, 0.5)) drop-shadow(0 0 20px rgba(0, 150, 255, 0.4));
+  }
+}
 
-    .engine-select {
-      padding: 0 16px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      font-weight: bold;
-      font-size: 20px;
-
-    }
-
-    input[type='text'] {
-      background-color: rgba(#fff, 0.5);
-      width: 500px;
-      height: 40px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      font-size: 14px;
-      transition: all 0.3s ease-in-out;
-      color: #fff;
-
-      &:focus {
-        outline: none;
-        width: 625px;
-        height: 50px;
-        padding: 12px;
-        padding-left: 15px;
-        font-size: 20px;
-        box-shadow: 0px 0px 14px 3px #409EFF;
-      }
-    }
+// 星云流动动画
+@keyframes nebulaMove {
+  0% {
+    background-position: 0% 0%, 100% 100%;
   }
 
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
+  100% {
+    background-position: 100% 100%, 0% 0%;
+  }
+}
+
+// 星光缓慢漂移
+@keyframes starsMove {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
   }
 
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
+  100% {
+    background-position: 1000px 600px, -800px 600px, 600px -400px;
+  }
+}
+
+@keyframes idle {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
   }
 
-  .slide-fade-enter-active,
-  .slide-fade-leave-active {
-    transition: all 0.1s ease;
-    display: inline-block;
+  10% {
+    transform: rotateX(0deg) rotateY(0deg);
   }
 
-  .slide-fade-enter-from {
-    opacity: 0;
-    transform: translateY(20px);
+  20% {
+    transform: rotateX(0deg) rotateY(0deg);
   }
 
-  .slide-fade-leave-to {
-    opacity: 0;
-    transform: translateY(-20px);
+  25% {
+    transform: rotateX(5deg) rotateY(-5deg);
+  }
+
+  30% {
+    transform: rotateX(8deg) rotateY(-8deg);
+  }
+
+  35% {
+    transform: rotateX(5deg) rotateY(-5deg);
+  }
+
+  40% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+
+  45% {
+    transform: rotateX(5deg) rotateY(5deg);
+  }
+
+  50% {
+    transform: rotateX(8deg) rotateY(8deg);
+  }
+
+  55% {
+    transform: rotateX(5deg) rotateY(5deg);
+  }
+
+  60% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+
+  65% {
+    transform: rotateX(-5deg) rotateY(5deg);
+  }
+
+  70% {
+    transform: rotateX(-8deg) rotateY(8deg);
+  }
+
+  75% {
+    transform: rotateX(-5deg) rotateY(5deg);
+  }
+
+  80% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+
+  85% {
+    transform: rotateX(-5deg) rotateY(-5deg);
+  }
+
+  90% {
+    transform: rotateX(-8deg) rotateY(-8deg);
+  }
+
+  95% {
+    transform: rotateX(-5deg) rotateY(-5deg);
+  }
+
+  100% {
+    transform: rotateX(0deg) rotateY(0deg);
   }
 }
 </style>
