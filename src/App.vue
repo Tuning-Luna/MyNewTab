@@ -2,9 +2,34 @@
 import { ref, onMounted } from 'vue';
 
 const logoRef = ref<HTMLDivElement | null>(null);
+const typingRef = ref<HTMLDivElement | null>(null);
+
+const text = "Always Learning,Always building.";
+const typingSpeed = 130; // 打字间隔，单位 ms
+
+function typeWriter(el: HTMLElement) {
+  let index = 0;
+
+  function type() {
+    if (index <= text.length) {
+      el.textContent = text.slice(0, index);
+      index++;
+      setTimeout(type, typingSpeed);
+    } else {
+      setTimeout(() => {
+        index = 0;
+        el.textContent = '';
+        type();
+      }, 2000); // 打字完成后等待 1 秒再重新开始
+    }
+  }
+
+  type();
+}
 
 onMounted(() => {
   if (!logoRef.value) return;
+
   const logo = logoRef.value;
 
   logo.addEventListener('mousemove', (e) => {
@@ -18,7 +43,7 @@ onMounted(() => {
 
     const maxAngle = 30;
     const rotateY = maxAngle * percentX;
-    const rotateX = -maxAngle * percentY; // 翻转 Y 方向更自然
+    const rotateX = -maxAngle * percentY;
 
     logo.style.setProperty('--rotateX', rotateX + 'deg');
     logo.style.setProperty('--rotateY', rotateY + 'deg');
@@ -28,6 +53,10 @@ onMounted(() => {
     logo.style.setProperty('--rotateX', '0deg');
     logo.style.setProperty('--rotateY', '0deg');
   });
+
+  if (typingRef.value) {
+    typeWriter(typingRef.value);
+  }
 });
 </script>
 
@@ -38,6 +67,8 @@ onMounted(() => {
       <div class="avatar">
         <img src="./assets/Tuning.png" alt="">
       </div>
+      <!-- 打字机文本 -->
+      <!-- <div class="typing" ref="typingRef"></div> -->
     </div>
   </div>
 
@@ -69,23 +100,46 @@ onMounted(() => {
   }
 
   // 星光漂移层
-  // 星光漂移层（密集版）
   &::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(1.5px 1.5px at 5% 10%, white, transparent),
-      radial-gradient(1.2px 1.2px at 15% 35%, #aaf, transparent),
-      radial-gradient(1.8px 1.8px at 25% 60%, #aff, transparent),
-      radial-gradient(1.2px 1.2px at 35% 20%, #ccf, transparent),
-      radial-gradient(1px 1px at 45% 50%, #aaf, transparent),
-      radial-gradient(1.5px 1.5px at 55% 80%, #aff, transparent),
-      radial-gradient(1.2px 1.2px at 65% 30%, #ccf, transparent),
-      radial-gradient(1px 1px at 75% 70%, #aaf, transparent),
-      radial-gradient(1.5px 1.5px at 85% 40%, #aff, transparent),
-      radial-gradient(1px 1px at 95% 90%, #ccf, transparent);
+      radial-gradient(4px 4px at 5% 10%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(3px 3px at 15% 35%, rgba(255, 240, 250, 0.98), transparent),
+      radial-gradient(4.5px 4.5px at 25% 60%, rgba(210, 230, 255, 1), transparent),
+      radial-gradient(3px 3px at 35% 20%, rgba(245, 230, 255, 0.98), transparent),
+      radial-gradient(2.5px 2.5px at 45% 50%, rgba(235, 245, 255, 0.95), transparent),
+      radial-gradient(4px 4px at 55% 80%, rgba(255, 245, 250, 1), transparent),
+      radial-gradient(3px 3px at 65% 30%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(2.5px 2.5px at 75% 70%, rgba(240, 250, 255, 0.95), transparent),
+      radial-gradient(4px 4px at 85% 40%, rgba(255, 240, 250, 1), transparent),
+      radial-gradient(2.5px 2.5px at 95% 90%, rgba(230, 240, 255, 0.95), transparent),
+      radial-gradient(3.2px 3.2px at 10% 50%, rgba(210, 230, 255, 1), transparent),
+      radial-gradient(4px 4px at 20% 80%, rgba(230, 245, 255, 1), transparent),
+      radial-gradient(2.8px 2.8px at 30% 15%, rgba(255, 235, 250, 0.98), transparent),
+      radial-gradient(3.5px 3.5px at 40% 65%, rgba(210, 230, 255, 1), transparent),
+      radial-gradient(4.3px 4.3px at 50% 25%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(2.5px 2.5px at 60% 75%, rgba(255, 240, 250, 0.95), transparent),
+      radial-gradient(4px 4px at 70% 10%, rgba(210, 230, 255, 1), transparent),
+      radial-gradient(3px 3px at 80% 55%, rgba(230, 245, 255, 1), transparent),
+      radial-gradient(4.5px 4.5px at 90% 30%, rgba(255, 245, 250, 1), transparent),
+      radial-gradient(3px 3px at 0% 70%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(2.8px 2.8px at 12% 90%, rgba(235, 230, 255, 0.95), transparent),
+      radial-gradient(3.5px 3.5px at 22% 5%, rgba(255, 235, 245, 0.98), transparent),
+      radial-gradient(4px 4px at 32% 45%, rgba(210, 230, 255, 1), transparent),
+      radial-gradient(2.5px 2.5px at 42% 85%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(4.3px 4.3px at 52% 20%, rgba(255, 240, 250, 1), transparent),
+      radial-gradient(3px 3px at 62% 60%, rgba(230, 245, 255, 1), transparent),
+      radial-gradient(4px 4px at 72% 95%, rgba(255, 245, 250, 1), transparent),
+      radial-gradient(3.5px 3.5px at 82% 35%, rgba(220, 235, 255, 1), transparent),
+      radial-gradient(4.5px 4.5px at 92% 75%, rgba(235, 245, 255, 1), transparent);
+
     background-repeat: no-repeat;
+    filter: brightness(1.8) blur(0.3px);
+    /* 提高亮度，减少模糊 */
+    opacity: 1;
+    /* 完全不透明，恢复亮度 */
     animation: starsMove 25s linear infinite;
     z-index: 0;
   }
@@ -103,16 +157,30 @@ onMounted(() => {
     width: 400px;
     height: auto;
     transition: all 0.4s ease;
-    transform-style: preserve-3d;
     transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
     filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
-    animation: idle 6s infinite linear alternate;
+    animation: idle 10s linear infinite;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
 
   .google:hover {
     transform: scale(1.1) rotateX(var(--rotateX)) rotateY(var(--rotateY)) translateZ(-25px);
     filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 200, 255, 0.5)) drop-shadow(0 0 20px rgba(0, 150, 255, 0.4));
   }
+}
+
+.typing {
+  position: absolute;
+  top: 100%; // 放在头像下方
+  left: 50%;
+  transform: translate(-50%, 300px); // 下移 20px，居中
+  font-size: 2.8rem;
+  color: #1f9797;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 // 星云流动动画
@@ -137,81 +205,52 @@ onMounted(() => {
   }
 }
 
+
 @keyframes idle {
+
+  // 左上角
   0% {
-    transform: rotateX(0deg) rotateY(0deg);
+    transform: rotateX(10deg) rotateY(-10deg);
   }
 
-  10% {
-    transform: rotateX(0deg) rotateY(0deg);
+  // 过渡
+  12% {
+    transform: rotateX(0deg) rotateY(-10deg);
   }
 
-  20% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-
+  // 左下角
   25% {
-    transform: rotateX(5deg) rotateY(-5deg);
+    transform: rotateX(-10deg) rotateY(-10deg);
   }
 
-  30% {
-    transform: rotateX(8deg) rotateY(-8deg);
+  // 过渡
+  38% {
+    transform: rotateX(-10deg) rotateY(0deg);
   }
 
-  35% {
-    transform: rotateX(5deg) rotateY(-5deg);
-  }
-
-  40% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-
-  45% {
-    transform: rotateX(5deg) rotateY(5deg);
-  }
-
+  // 右下角
   50% {
-    transform: rotateX(8deg) rotateY(8deg);
+    transform: rotateX(-10deg) rotateY(10deg);
   }
 
-  55% {
-    transform: rotateX(5deg) rotateY(5deg);
+  // 过渡
+  62% {
+    transform: rotateX(0deg) rotateY(10deg);
   }
 
-  60% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-
-  65% {
-    transform: rotateX(-5deg) rotateY(5deg);
-  }
-
-  70% {
-    transform: rotateX(-8deg) rotateY(8deg);
-  }
-
+  // 右上角
   75% {
-    transform: rotateX(-5deg) rotateY(5deg);
+    transform: rotateX(10deg) rotateY(10deg);
   }
 
-  80% {
-    transform: rotateX(0deg) rotateY(0deg);
+  // 过渡
+  87% {
+    transform: rotateX(10deg) rotateY(0deg);
   }
 
-  85% {
-    transform: rotateX(-5deg) rotateY(-5deg);
-  }
-
-  90% {
-    transform: rotateX(-8deg) rotateY(-8deg);
-  }
-
-  95% {
-    transform: rotateX(-5deg) rotateY(-5deg);
-  }
-
+  // 回到左上角
   100% {
-    transform: rotateX(0deg) rotateY(0deg);
+    transform: rotateX(10deg) rotateY(-10deg);
   }
 }
 
