@@ -4,49 +4,33 @@ import { ref, onMounted } from 'vue';
 const logoRef = ref<HTMLDivElement | null>(null);
 const typingRef = ref<HTMLDivElement | null>(null);
 
-const text = "Always Learning,Always building.";
-const typingSpeed = 130; // 打字间隔，单位 ms
+const TEXT = "Always Learning, Always building.";
+const TYPING_SPEED = 130;
 
 function typeWriter(el: HTMLElement) {
   let index = 0;
+  let pausing = false;
 
-  function type() {
-    if (index <= text.length) {
-      el.textContent = text.slice(0, index);
-      index++;
-      setTimeout(type, typingSpeed);
-    } else {
-      setTimeout(() => {
-        index = 0;
-        el.textContent = '';
-        type();
-      }, 2000); // 打字完成后等待 1 秒再重新开始
+  setInterval(() => {
+    if (pausing) return;
+    el.textContent = TEXT.slice(0, index++);
+    if (index > TEXT.length) {
+      pausing = true;
+      setTimeout(() => { index = 0; pausing = false; }, 2000);
     }
-  }
-
-  type();
+  }, TYPING_SPEED);
 }
 
 onMounted(() => {
-  if (!logoRef.value) return;
-
   const logo = logoRef.value;
+  if (!logo) return;
 
   logo.addEventListener('mousemove', (e) => {
-    const rect = logo.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const percentX = (x - centerX) / centerX;
-    const percentY = (y - centerY) / centerY;
-
-    const maxAngle = 30;
-    const rotateY = maxAngle * percentX;
-    const rotateX = -maxAngle * percentY;
-
-    logo.style.setProperty('--rotateX', rotateX + 'deg');
-    logo.style.setProperty('--rotateY', rotateY + 'deg');
+    const { left, top, width, height } = logo.getBoundingClientRect();
+    const px = (e.clientX - left - width / 2) / (width / 2);
+    const py = (e.clientY - top - height / 2) / (height / 2);
+    logo.style.setProperty('--rotateX', `${-30 * py}deg`);
+    logo.style.setProperty('--rotateY', `${30 * px}deg`);
   });
 
   logo.addEventListener('mouseleave', () => {
@@ -54,24 +38,24 @@ onMounted(() => {
     logo.style.setProperty('--rotateY', '0deg');
   });
 
-  if (typingRef.value) {
-    typeWriter(typingRef.value);
-  }
+  if (typingRef.value) typeWriter(typingRef.value);
 });
+
+function goGoogle() {
+  window.location.href = 'https://www.google.com';
+}
 </script>
 
 <template>
   <div class="main">
     <div class="logo" ref="logoRef">
-      <img class="google" src="./assets/google_logo.svg" alt="logo" />
+      <img class="google" src="./assets/google_logo.svg" alt="logo" @click="goGoogle" />
       <div class="avatar">
-        <img src="./assets/Tuning.png" alt="">
+        <img src="./assets/Tuning.png" alt="" />
       </div>
-      <!-- 打字机文本 -->
-      <!-- <div class="typing" ref="typingRef"></div> -->
     </div>
+    <div class="typing" ref="typingRef"></div>
   </div>
-
 </template>
 
 <style scoped lang="scss">
@@ -79,8 +63,7 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: url('./assets/earch.jpg') no-repeat center center;
-  background-size: cover;
+  background: url('./assets/earch.jpg') no-repeat center center / cover;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -88,18 +71,17 @@ onMounted(() => {
   padding-top: 20vh;
   perspective: 1000px;
 
-  // 星云流动层
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(0, 80, 255, 0.25), transparent 50%),
+    background:
+      radial-gradient(circle at 30% 30%, rgba(0, 80, 255, 0.25), transparent 50%),
       radial-gradient(circle at 70% 70%, rgba(255, 0, 150, 0.2), transparent 50%);
     animation: nebulaMove 20s linear infinite alternate;
     z-index: 0;
   }
 
-  // 星光漂移层
   &::after {
     content: '';
     position: absolute;
@@ -134,12 +116,8 @@ onMounted(() => {
       radial-gradient(4px 4px at 72% 95%, rgba(255, 245, 250, 1), transparent),
       radial-gradient(3.5px 3.5px at 82% 35%, rgba(220, 235, 255, 1), transparent),
       radial-gradient(4.5px 4.5px at 92% 75%, rgba(235, 245, 255, 1), transparent);
-
     background-repeat: no-repeat;
     filter: brightness(1.8) blur(0.3px);
-    /* 提高亮度，减少模糊 */
-    opacity: 1;
-    /* 完全不透明，恢复亮度 */
     animation: starsMove 25s linear infinite;
     z-index: 0;
   }
@@ -151,7 +129,6 @@ onMounted(() => {
   --rotateX: 0deg;
   --rotateY: 0deg;
   transform-style: preserve-3d;
-  transition: transform 0.3s ease;
 
   .google {
     width: 400px;
@@ -160,130 +137,58 @@ onMounted(() => {
     transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
     filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
     animation: idle 10s linear infinite;
-    transform-origin: center;
     transform-style: preserve-3d;
     will-change: transform;
-  }
 
-  .google:hover {
-    transform: scale(1.1) rotateX(var(--rotateX)) rotateY(var(--rotateY)) translateZ(-25px);
-    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 200, 255, 0.5)) drop-shadow(0 0 20px rgba(0, 150, 255, 0.4));
+    &:hover {
+      transform: scale(1.1) rotateX(var(--rotateX)) rotateY(var(--rotateY)) translateZ(-25px);
+      filter:
+        drop-shadow(0 0 6px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(0, 200, 255, 0.5)) drop-shadow(0 0 20px rgba(0, 150, 255, 0.4));
+    }
   }
 }
 
+// ✅ 移到 .main 下，用 absolute 定位相对于 .main，位置固定可靠
 .typing {
   position: absolute;
-  top: 100%; // 放在头像下方
+  bottom: 12vh;
   left: 50%;
-  transform: translate(-50%, 300px); // 下移 20px，居中
+  transform: translateX(-50%);
   font-size: 2.8rem;
   color: #1f9797;
   font-family: monospace;
   white-space: nowrap;
-  overflow: hidden;
-}
-
-// 星云流动动画
-@keyframes nebulaMove {
-  0% {
-    background-position: 0% 0%, 100% 100%;
-  }
-
-  100% {
-    background-position: 100% 100%, 0% 0%;
-  }
-}
-
-// 星光缓慢漂移
-@keyframes starsMove {
-  0% {
-    background-position: 0 0, 0 0, 0 0;
-  }
-
-  100% {
-    background-position: 1000px 600px, -800px 600px, 600px -400px;
-  }
-}
-
-
-@keyframes idle {
-
-  // 左上角
-  0% {
-    transform: rotateX(10deg) rotateY(-10deg);
-  }
-
-  // 过渡
-  12% {
-    transform: rotateX(0deg) rotateY(-10deg);
-  }
-
-  // 左下角
-  25% {
-    transform: rotateX(-10deg) rotateY(-10deg);
-  }
-
-  // 过渡
-  38% {
-    transform: rotateX(-10deg) rotateY(0deg);
-  }
-
-  // 右下角
-  50% {
-    transform: rotateX(-10deg) rotateY(10deg);
-  }
-
-  // 过渡
-  62% {
-    transform: rotateX(0deg) rotateY(10deg);
-  }
-
-  // 右上角
-  75% {
-    transform: rotateX(10deg) rotateY(10deg);
-  }
-
-  // 过渡
-  87% {
-    transform: rotateX(10deg) rotateY(0deg);
-  }
-
-  // 回到左上角
-  100% {
-    transform: rotateX(10deg) rotateY(-10deg);
-  }
+  z-index: 2;
 }
 
 .avatar {
   position: absolute;
-  bottom: -240px; // 调整到 logo 下方或者你想要的位置
+  bottom: -240px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px; // 头像大小
+  width: 200px;
   height: 200px;
-  object-fit: cover;
-  border-radius: 50%; // 圆形
+  border-radius: 50%;
   overflow: visible;
   z-index: 3;
+
 
   img {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 4px solid #00ffff; // 边框颜色
+    border: 4px solid #00ffff;
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
     display: block;
+    object-fit: cover; // ✅ 保持比例，裁剪填满圆形区域
+    object-position: center; // 裁剪居中，可按需调整
   }
 
-  // 涟漪效果
+  // ✅ 用 inset 负值扩展，圆心始终与父元素中心对齐
   &::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 120%;
-    transform: translate(-50%, -50%);
+    inset: -12px; // 向外扩展固定像素，不受宽高百分比影响
     border-radius: 50%;
     border: 2px solid rgba(0, 255, 255, 0.5);
     animation: ripple 2s infinite linear;
@@ -291,19 +196,72 @@ onMounted(() => {
   }
 }
 
-@keyframes ripple {
-  0% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 1;
+@keyframes nebulaMove {
+  from {
+    background-position: 0% 0%, 100% 100%;
   }
 
-  70% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.2;
+  to {
+    background-position: 100% 100%, 0% 0%;
+  }
+}
+
+@keyframes starsMove {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 1000px 600px, -800px 600px, 600px -400px;
+  }
+}
+
+@keyframes idle {
+  0% {
+    transform: rotateX(10deg) rotateY(-10deg);
+  }
+
+  12% {
+    transform: rotateX(0deg) rotateY(-10deg);
+  }
+
+  25% {
+    transform: rotateX(-10deg) rotateY(-10deg);
+  }
+
+  38% {
+    transform: rotateX(-10deg) rotateY(0deg);
+  }
+
+  50% {
+    transform: rotateX(-10deg) rotateY(10deg);
+  }
+
+  62% {
+    transform: rotateX(0deg) rotateY(10deg);
+  }
+
+  75% {
+    transform: rotateX(10deg) rotateY(10deg);
+  }
+
+  87% {
+    transform: rotateX(10deg) rotateY(0deg);
   }
 
   100% {
-    transform: translate(-50%, -50%) scale(1.5);
+    transform: rotateX(10deg) rotateY(-10deg);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    inset: 0px;
+    opacity: 1;
+  }
+
+  100% {
+    inset: -40px;
     opacity: 0;
   }
 }
